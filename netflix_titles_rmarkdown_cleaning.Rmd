@@ -1,0 +1,176 @@
+---
+title: "Netflix_Titles_Cleaning"
+author: "Akshay"
+date: "11/2/2021"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## import the libraries
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(SimDesign)
+```
+## Import the data
+
+```{r}
+data <- read_excel("C:\\Users\\AkshayT\\Desktop\\dataset\\Netflix_titles\\netflix_titles.xlsx", sheet = "netflix_titles")
+```
+
+
+
+## Methods to see data
+
+```{r}
+head(data)
+```
+
+```{r}
+skimr::skim_without_charts(data)
+```
+
+```{r}
+str(data)
+```
+
+```{r}
+glimpse(data)
+```
+
+## Replacing NA with 99 in duration_minutes column 
+
+```{r}
+mean(data$duration_minutes,na.rm = TRUE)
+```
+
+```{r}
+data$duration_minutes[is.na(data$duration_minutes)] <- 99
+```
+
+```{r}
+data$duration_minutes[is.na(data$duration_minutes)]
+```
+
+```{r}
+glimpse(data)
+```
+
+## count() function is similar to value_count() in pandas
+
+```{r}
+count(data, duration_seasons, sort = TRUE)
+```
+
+## filtering out data with duration_seasons in c(42825,80188902)
+
+```{r}
+data <- filter(data, !data$duration_seasons %in% c(42825,80188902))
+```
+
+## check data again for count()
+
+```{r}
+count(data, duration_seasons, sort = TRUE)
+```
+
+## replace all NA in duration_season with 1 as they are movies
+
+```{r}
+data$duration_seasons[is.na(data$duration_seasons)] <- 1
+```
+
+## check data again for count()
+
+```{r}
+count(data, duration_seasons, sort = TRUE)
+
+skimr::skim_without_charts(data)
+```
+
+## removing rows with no rating  (NA)
+
+```{r}
+data <- filter(data, !is.na(data$rating))
+```
+
+## removing rows with no description using filter() and assigning it to the dataframe
+
+```{r}
+data <- filter(data, !is.na(data$description))
+```
+
+## check
+
+```{r}
+skimr::skim_without_charts(data)
+```
+
+## removing rows without show_id (NA) by using filter() function ans assigning it to df
+
+```{r}
+data <- filter(data, !is.na(data$show_id))
+```
+
+## removing rows without date_added (NA) by using filter() function ans assigning it to df
+
+```{r}
+data <- filter(data, !is.na(data$date_added))
+```
+
+
+## check
+
+```{r}
+skimr::skim_without_charts(data)
+str(data)
+glimpse(data)
+```
+
+## ggplot
+
+```{r}
+ggplot(data, aes(x=release_year, y=duration_minutes, color=type))+
+  geom_point()
+```
+
+
+
+```{r}
+ggplot(data, aes(x=release_year, y=duration_minutes, color=duration_minutes))+
+  geom_point()+
+  labs(title = "Duration minutes vs Release Year")
+```
+
+
+
+```{r}
+ggplot(data, aes(x=release_year, y=duration_minutes, color=release_year))+
+  geom_point()+
+  labs(title = "Duration minutes vs Release Year")+
+  facet_wrap(~type)
+```
+
+
+
+
